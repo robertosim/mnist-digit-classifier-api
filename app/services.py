@@ -44,7 +44,12 @@ def carregar_modelo():
         )
 
     inicio = time.perf_counter()
-    modelo = joblib.load(MODEL_PATH)
+    try:
+        modelo = joblib.load(MODEL_PATH)
+    except Exception as exc:
+        raise ModeloNaoCarregadoError(
+            f"Falha ao carregar {MODEL_PATH}: {exc}"
+        ) from exc
     duracao = time.perf_counter() - inicio
 
     if not hasattr(modelo, "predict_proba"):
