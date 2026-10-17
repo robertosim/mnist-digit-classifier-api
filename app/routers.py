@@ -5,8 +5,8 @@ Responsabilidade: expor endpoints HTTP, traduzir exceções de domínio
 nada de joblib, numpy ou preprocessamento aqui.
 
 Rotas que virão na Fase 5:
-    GET  /health  → status da API e do modelo
-    POST /predict → previsão do dígito
+    GET  /v1/health  → status da API e do modelo
+    POST /v1/predict → previsão do dígito
 """
 from fastapi import APIRouter
 

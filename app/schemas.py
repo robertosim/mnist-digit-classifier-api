@@ -8,20 +8,20 @@ from pydantic import BaseModel
 
 
 class PredictRequest(BaseModel):
-    """Corpo da requisição de previsão (Fase 4)."""
+    """Corpo da requisição de previsão (Fase 5)."""
     pass
 
 
 class PredictResponse(BaseModel):
-    """Corpo da resposta de previsão (Fase 4)."""
+    """Corpo da resposta de previsão (Fase 5)."""
     pass
 
 
 class HealthResponse(BaseModel):
-    """Resposta do endpoint de saúde (Fase 4)."""
+    """Resposta do endpoint de saúde (Fase 5)."""
     pass
 
 
 class ErrorResponse(BaseModel):
-    """Resposta padrão de erro (Fase 4)."""
+    """Resposta padrão de erro (Fase 5)."""
     pass

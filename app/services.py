@@ -7,17 +7,15 @@ notebook, este módulo continua igual.
 """
 from pathlib import Path
 
-MODEL_PATH = Path("models/mnist_mlp_pipeline.joblib")
+MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "mnist_mlp_pipeline.joblib"
 
 
-class ImagemInvalidaError(Exception):
+class ImagemInvalidaError(ValueError):
     """A imagem recebida não tem formato válido (esperado 784 pixels)."""
-    pass
 
 
-class ModeloNaoCarregadoError(Exception):
+class ModeloNaoCarregadoError(RuntimeError):
     """O arquivo de modelo não existe ou não pôde ser carregado."""
-    pass
 
 
 def carregar_modelo():
@@ -26,7 +24,7 @@ def carregar_modelo():
     Raises:
         ModeloNaoCarregadoError: se MODEL_PATH não existir.
     """
-    raise NotImplementedError("Fase 4: implementar carregamento do modelo.")
+    raise NotImplementedError("Fase 3: implementar carregamento do modelo.")
 
 
 def prever(modelo, imagem):
@@ -37,9 +35,9 @@ def prever(modelo, imagem):
         imagem: array-like com 784 pixels (0-255).
 
     Returns:
-        dict com chaves "digito_predito" e "probabilidades".
+        dict com chaves "digito", "confianca" e "probabilidades".
 
     Raises:
         ImagemInvalidaError: se a imagem não tiver 784 pixels.
     """
-    raise NotImplementedError("Fase 4: implementar inferência.")
+    raise NotImplementedError("Fase 5: implementar inferência.")
