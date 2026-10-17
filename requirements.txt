@@ -4,7 +4,6 @@ pydantic==2.14.1
 scikit-learn==1.9.1
 numpy==2.5.4
 joblib==1.6.0
-pandas==3.0.6
 httpx==0.28.1
 pillow==13.0.0
 ipykernel==7.4.0
