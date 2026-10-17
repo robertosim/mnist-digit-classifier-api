@@ -1,0 +1,26 @@
+# Artefatos de modelo (gerados pelo notebook)
+models/*.joblib
+models/*.pkl
+models/*.h5
+!models/mnist_mlp_pipeline.joblib
+
+# Dados grandes
+data/mnist_784*
+*.joblib
+!models/mnist_mlp_pipeline.joblib
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
