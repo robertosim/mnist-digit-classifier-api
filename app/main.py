@@ -17,6 +17,9 @@ from fastapi import FastAPI
 from app import services
 from app.routers import router
 
+# Configura o logging ANTES de criar o logger, para que uvicorn mostre
+# as mensagens de app.services e app.main no console.
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(name)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
