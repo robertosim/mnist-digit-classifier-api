@@ -39,7 +39,7 @@ def carregar_modelo():
     """
     if not MODEL_PATH.exists():
         raise ModeloNaoCarregadoError(
-            f"Arquivo de modelo não encontrado: {MODEL_PATH}. "
+            f"Arquivo de modelo não encontrado: {MODEL_PATH.name}. "
             "Execute o notebook da Fase 1 para gerar o .joblib."
         )
 
@@ -48,19 +48,19 @@ def carregar_modelo():
         modelo = joblib.load(MODEL_PATH)
     except Exception as exc:
         raise ModeloNaoCarregadoError(
-            f"Falha ao carregar {MODEL_PATH}: {exc}"
+            f"Falha ao carregar {MODEL_PATH.name}: {exc}"
         ) from exc
     duracao = time.perf_counter() - inicio
 
     if not hasattr(modelo, "predict_proba"):
         raise ModeloNaoCarregadoError(
-            f"Objeto carregado de {MODEL_PATH} não tem predict_proba. "
+            f"Objeto carregado de {MODEL_PATH.name} não tem predict_proba. "
             "Verifique se o .joblib contém um Pipeline sklearn válido."
         )
 
     logger.info(
-        "Modelo carregado de %s em %.3fs (tipo: %s)",
-        MODEL_PATH,
+        "Modelo carregado (%s) em %.3fs (tipo: %s)",
+        MODEL_PATH.name,
         duracao,
         type(modelo).__name__,
     )
