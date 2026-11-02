@@ -8,7 +8,7 @@ Contrato de entrada: 784 pixels inteiros (imagem 28x28 achatada), cada um de 0 a
 Dados fora desse contrato são barrados pelo Pydantic (o FastAPI responde 422)
 ANTES de chegar ao modelo.
 """
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -63,9 +63,13 @@ class PredictResponse(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    """Resposta do endpoint de saúde."""
+    """Resposta do endpoint de saúde (GET /health, sempre 200 OK)."""
 
-    status: str = Field(description="Estado do serviço.", examples=["ok"])
+    status: Literal["ok", "indisponivel"] = Field(
+        description="Estado do serviço: 'ok' com o modelo na RAM, "
+        "'indisponivel' sem ele (a rota continua 200).",
+        examples=["ok"],
+    )
     model_loaded: bool = Field(description="True se o modelo está carregado na RAM.")
 
 

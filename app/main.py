@@ -12,7 +12,8 @@ Como rodar (a partir da raiz do repositório):
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.responses import JSONResponse
 
 from app import services
 from app.routers import router
@@ -52,3 +53,25 @@ app = FastAPI(
 )
 
 app.include_router(router)
+
+
+@app.exception_handler(Exception)
+def erro_interno_nao_tratado(request: Request, exc: Exception) -> JSONResponse:
+    """Última linha de defesa: qualquer estouro vira 500 JSON padronizado.
+
+    Sem este handler, uma exceção não prevista terminaria em HTML genérico
+    do Starlette (ou derrubaria o processo em alguns cenários). Aqui a API
+    NUNCA cai: o erro é logado com stack trace para o operador e o cliente
+    recebe {"detail": ...} — o mesmo formato dos demais erros.
+    """
+    logger.error(
+        "Erro não tratado em %s %s: %s",
+        request.method,
+        request.url.path,
+        exc,
+        exc_info=exc,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Erro interno do servidor. Tente novamente."},
+    )

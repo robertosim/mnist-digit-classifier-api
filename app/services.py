@@ -10,10 +10,17 @@ import time
 from pathlib import Path
 
 import joblib
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "mnist_mlp_pipeline.joblib"
+
+# Dimensões do contrato, repetidas aqui de propósito: esta camada é
+# independente do schemas.py (nenhuma das duas importa a outra) e precisa
+# se defender sozinha quando for chamada por CLI/notebook.
+N_PIXELS = 784  # 28 x 28
+N_CLASSES = 10  # dígitos 0 a 9
 
 
 class ImagemInvalidaError(ValueError):
@@ -70,14 +77,54 @@ def carregar_modelo():
 def prever(modelo, imagem):
     """Executa a inferência e retorna dígito previsto + probabilidades.
 
+    A imagem já chega validada pelo Pydantic quando o caminho é a rota
+    ``POST /predict``, mas a função se defende sozinha: chamada por CLI
+    ou notebook com outra coisa, o erro sai daqui como exceção de domínio
+    (nunca como HTTPException — esta camada não conhece HTTP).
+
     Args:
-        modelo: objeto carregado por carregar_modelo().
+        modelo: objeto carregado por carregar_modelo() (ou None).
         imagem: array-like com 784 pixels (0-255).
 
     Returns:
-        dict com chaves "digito", "confianca" e "probabilidades".
+        dict com "digito" (np.int64, argmax), "confianca" (np.float64,
+        probabilidade da classe vencedora) e "probabilidades" (lista de
+        10 floats que somam ~1, na ordem dos dígitos 0 a 9).
 
     Raises:
-        ImagemInvalidaError: se a imagem não tiver 784 pixels.
+        ModeloNaoCarregadoError: se modelo for None ou devolver o número
+            errado de probabilidades.
+        ImagemInvalidaError: se a imagem não tiver 784 pixels, não for
+            numérica ou tiver valor fora de 0-255.
     """
-    raise NotImplementedError("Fase 5: implementar inferência.")
+    if modelo is None:
+        raise ModeloNaoCarregadoError("Modelo não está carregado na memória RAM.")
+
+    try:
+        pixels = np.asarray(imagem, dtype="float64")
+    except (TypeError, ValueError) as exc:
+        raise ImagemInvalidaError(f"Pixels não numéricos: {exc}") from exc
+
+    if pixels.ndim != 1 or pixels.size != N_PIXELS:
+        raise ImagemInvalidaError(
+            f"Esperados {N_PIXELS} pixels em 1 dimensão; recebidos "
+            f"{pixels.size} (ndim={pixels.ndim})."
+        )
+    if not np.isfinite(pixels).all() or pixels.min() < 0 or pixels.max() > 255:
+        raise ImagemInvalidaError("Pixels devem estar entre 0 e 255.")
+
+    # Uma amostra por linha: o Pipeline normaliza internamente
+    # (app.preprocessing.normalizar_pixels divide por 255).
+    probabilidades = np.asarray(modelo.predict_proba(pixels.reshape(1, -1))[0])
+    if probabilidades.size != N_CLASSES:
+        raise ModeloNaoCarregadoError(
+            f"Modelo devolveu {probabilidades.size} probabilidades; "
+            f"esperado {N_CLASSES} (dígitos 0 a 9)."
+        )
+
+    digito = np.argmax(probabilidades)
+    return {
+        "digito": digito,
+        "confianca": probabilidades[digito],
+        "probabilidades": probabilidades.tolist(),
+    }
